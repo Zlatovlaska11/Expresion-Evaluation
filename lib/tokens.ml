@@ -5,7 +5,7 @@ type token =
 
 type expr = 
   | Op of char
-  | Xpr of (char * expr) list
+  | Xpr of (char * expr list)
 
 
 let is_whitespace c =
@@ -65,7 +65,7 @@ let rec parse_expresion tokens min_bp =
         else
           
           let rhs, tokens' = parse_expresion rest bp in 
-          let new_lhs = Xpr [ (op, lhs); (op, rhs) ] in 
+          let new_lhs = Xpr (op, [lhs; rhs])  in 
 
           loop new_lhs tokens'
     | _ -> (lhs, tokens)
@@ -77,10 +77,23 @@ let rec print_expr ?(indent=0) e =
   match e with
   | Op c ->
       Printf.printf "%sOp(%c)\n" pad c
-  | Xpr lst ->
-      Printf.printf "%sXpr\n" pad;
-      List.iter (fun (op, sub) ->
-        Printf.printf "%s  Operator: %c\n" pad op;
+  | Xpr (op, sub_exprs) ->
+      Printf.printf "%sXpr(%c)\n" pad op;
+      List.iter (fun sub ->
         print_expr ~indent:(indent + 4) sub
-      ) lst
+      ) sub_exprs
+
+let rec eval_expr expr =
+  match expr with
+  | Op c -> 
+      int_of_char c - int_of_char '0'
+  | Xpr (op, exprs) -> 
+      match (op, exprs) with
+      | ('+', [lhs; rhs]) -> eval_expr lhs + eval_expr rhs
+      | ('-', [lhs; rhs]) -> eval_expr lhs - eval_expr rhs
+      | ('*', [lhs; rhs]) -> eval_expr lhs * eval_expr rhs
+      | ('/', [lhs; rhs]) -> eval_expr lhs / eval_expr rhs
+      | _ -> failwith "Invalid expression"
+
+
 
