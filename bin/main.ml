@@ -1,17 +1,21 @@
 open Parser
 
-let () = 
-  (* Tokens.parse_input "1 + 2 - 3" *)
+let rec loop () =
+  print_string ">> ";
 
-  let tokens = [Tokens.Token '1'; Tokens.Operator '+'; Tokens.Token '2'; Tokens.Operator '*'; Tokens.Token '6'; Tokens.Operator '/'; Tokens.Token '2'; Tokens.EOF] in 
+  let input = read_line () in
 
-  let ast, _ = Tokens.parse_expresion tokens 0.0 in 
+  if input <> "exit" then (
 
-  let res = Tokens.eval_expr ast in 
+    let tokens = Tokens.parse_input input in
 
-  (* Tokens.print_expr ast *)
+    let ast, _ = Tokens.parse_expresion tokens 0.0 in 
 
-  print_int res
+    let res = Tokens.eval_expr ast in 
 
+    print_int res; print_newline ();
+    loop ()
+  )
 
+let () = loop ()
 
